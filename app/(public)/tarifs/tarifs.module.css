@@ -1,0 +1,252 @@
+/* ClariDoc Pro — tarifs.module.css | Charte Graphique (Light) */
+
+.page {
+  min-height: 100vh;
+  background-color: hsl(0, 0%, 100%);
+  color: hsl(206, 82%, 20%);
+  font-family: 'Poppins', system-ui, sans-serif;
+}
+
+.navbar {
+  padding: 0 1.5rem;
+  background: hsla(0, 0%, 100%, 0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid hsla(210, 14%, 89%, 0.6);
+}
+
+.navContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.logo {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: hsl(206, 82%, 20%);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.logoIcon { color: hsl(208, 80%, 48%); }
+.logoPro  { color: hsl(206, 82%, 24%); font-weight: 800; }
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-left: auto;
+}
+
+.navLink {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(210, 10%, 45%);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.navLink:hover, .navLink.active { color: hsl(208, 80%, 48%); }
+
+.navActions { display: flex; gap: 1rem; }
+
+/* ── MAIN ── */
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 6rem 1.5rem;
+  position: relative;
+}
+
+.heroGlow {
+  position: absolute;
+  top: -100px; left: 50%;
+  transform: translateX(-50%);
+  width: 1000px; height: 500px;
+  background: radial-gradient(ellipse, hsla(208, 80%, 48%, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 5rem;
+}
+
+.title {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.025em;
+}
+.gradient {
+  background: linear-gradient(135deg, hsl(206, 82%, 24%), hsl(208, 80%, 48%));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 1.0625rem;
+  color: hsl(210, 10%, 45%);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.pricingGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 6rem;
+}
+
+/* ── PRICING TOGGLE ── */
+.toggle { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 2.5rem; }
+.toggleBtn {
+  padding: 0.5rem 1.5rem;
+  border-radius: 100px;
+  border: 1px solid hsla(210, 14%, 89%, 1);
+  background: hsla(210, 20%, 98%, 1);
+  color: hsl(210, 10%, 45%);
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s;
+}
+.toggleActive {
+  background: hsl(208, 80%, 48%);
+  color: white;
+  border-color: hsl(208, 80%, 48%);
+  box-shadow: 0 4px 14px hsla(208, 80%, 48%, 0.38);
+}
+.discount {
+  background: hsl(145, 65%, 42%);
+  color: white;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+  vertical-align: middle;
+  font-weight: 700;
+}
+
+/* ── PRIX ── */
+.forfaitPrix { display: flex; align-items: baseline; gap: 4px; margin: 1rem 0 0.5rem; }
+.prixNum { font-family: 'Poppins', system-ui, sans-serif; font-size: 2.25rem; font-weight: 700; color: hsl(206, 82%, 20%); }
+.prixUnit { font-size: 0.875rem; color: hsl(210, 10%, 45%); }
+
+.pricingCard {
+  padding: 2.5rem 2rem;
+  border-radius: 24px;
+  background: hsla(0, 0%, 100%, 1);
+  border: 1px solid hsla(210, 14%, 89%, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: relative;
+  transition: transform 0.28s, border-color 0.28s, box-shadow 0.28s;
+  box-shadow: 0 4px 16px hsla(206, 82%, 20%, 0.05);
+}
+.pricingCard:hover {
+  transform: translateY(-8px);
+  border-color: hsl(208, 80%, 48%);
+  box-shadow: 0 12px 32px hsla(206, 82%, 20%, 0.1);
+}
+
+.highlighted {
+  border-color: hsl(208, 80%, 48%);
+  background: hsla(208, 80%, 48%, 0.04);
+  box-shadow: 0 24px 48px hsla(206, 82%, 20%, 0.12), 0 0 0 1px hsla(208, 80%, 48%, 0.2);
+}
+
+.badge {
+  position: absolute;
+  top: -12px; left: 50%;
+  transform: translateX(-50%);
+  background: hsl(208, 80%, 48%);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 100px;
+}
+
+.planName { font-family: 'Poppins', system-ui, sans-serif; font-size: 1.5rem; font-weight: 700; }
+.planRange { color: hsl(208, 80%, 48%); font-weight: 600; font-size: 0.9rem; }
+.planDesc { font-size: 0.875rem; color: hsl(210, 10%, 45%); line-height: 1.6; }
+
+.planFeatures {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+.planFeatures li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: hsl(206, 82%, 20%);
+}
+
+.btnPrimaryFull {
+  background: hsl(208, 80%, 48%);
+  color: #fff;
+  text-decoration: none;
+  padding: 0.875rem;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 700;
+  font-family: 'Poppins', system-ui, sans-serif;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.btnPrimaryFull:hover {
+  background: hsl(208, 80%, 38%);
+  box-shadow: 0 6px 20px hsla(208, 80%, 48%, 0.38);
+  transform: translateY(-2px);
+}
+.btnOutlineFull {
+  border: 1px solid hsla(210, 14%, 89%, 1);
+  color: hsl(206, 82%, 20%);
+  background: hsla(210, 20%, 98%, 1);
+  text-decoration: none;
+  padding: 0.875rem;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  font-family: 'Poppins', system-ui, sans-serif;
+  transition: background 0.2s, border-color 0.2s;
+}
+.btnOutlineFull:hover {
+  background: hsla(208, 80%, 48%, 0.05);
+  border-color: hsl(208, 80%, 48%);
+  color: hsl(208, 80%, 48%);
+}
+
+.comparison {
+  text-align: center;
+  padding: 4rem;
+  background: hsla(210, 20%, 98%, 1);
+  border-radius: 32px;
+  border: 1px solid hsla(210, 14%, 89%, 1);
+}
+.compTitle {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2.5rem;
+  letter-spacing: -0.02em;
+}
+.compGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+}
+.compItem { font-size: 0.9rem; color: hsl(210, 10%, 45%); line-height: 1.6; }

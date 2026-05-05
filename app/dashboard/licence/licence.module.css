@@ -1,0 +1,42 @@
+.page { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-8); }
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+
+/* Toggle mensuel/annuel */
+.toggle { display: flex; gap: var(--space-2); }
+.toggleBtn { padding: var(--space-2) var(--space-6); border-radius: var(--radius-full); border: 1px solid var(--color-border); background: transparent; color: var(--color-text-secondary); font-family: var(--font-sans); font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all var(--transition-fast); }
+.toggleActive { background: var(--color-primary); color: white; border-color: var(--color-primary); box-shadow: 0 4px 12px var(--color-primary-glow); }
+.discount { background: var(--color-success); color: white; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; margin-left: 4px; vertical-align: middle; }
+
+/* Grille forfaits */
+.forfaitsGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: var(--space-4); }
+.forfaitCard { border-radius: var(--radius-xl); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); cursor: pointer; position: relative; transition: transform var(--transition-base), box-shadow var(--transition-base); }
+.forfaitCard:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.forfaitSelected { border-color: var(--color-primary) !important; box-shadow: 0 0 0 2px var(--color-primary), var(--shadow-lg) !important; }
+.selectedBadge { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--color-primary); color: white; font-size: 0.7rem; font-weight: 700; padding: 2px 12px; border-radius: var(--radius-full); white-space: nowrap; }
+.forfaitPostes { font-family: var(--font-title); font-size: 1.25rem; font-weight: 700; color: var(--color-text-primary); }
+.forfaitPrix { display: flex; align-items: baseline; gap: 4px; }
+.prixNum { font-family: var(--font-title); font-size: 1.75rem; font-weight: 700; color: var(--color-primary); }
+.prixUnit { font-size: 0.8rem; color: var(--color-text-muted); }
+.forfaitFeatures { list-style: none; display: flex; flex-direction: column; gap: var(--space-2); flex: 1; }
+.forfaitFeatures li { font-size: 0.8125rem; color: var(--color-text-secondary); }
+
+/* Barre d'action */
+.actionBar { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-6); background: var(--color-primary-glow); border: 1px solid var(--color-border-glow); border-radius: var(--radius-lg); gap: var(--space-4); flex-wrap: wrap; }
+.actionBar strong { color: var(--color-primary); }
+
+/* Card paiement */
+.payCard { border-radius: var(--radius-xl); padding: var(--space-8); box-shadow: var(--shadow-lg); max-width: 560px; }
+.payHeader { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-6); }
+.payRecap { padding: var(--space-3) var(--space-4); background: var(--color-bg-elevated); border-radius: var(--radius-md); margin-bottom: var(--space-4); font-size: 0.875rem; color: var(--color-text-secondary); }
+.form { display: flex; flex-direction: column; gap: var(--space-4); }
+.moyenGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+.moyenCard { padding: var(--space-3); text-align: center; border-radius: var(--radius-md); border: 1px solid var(--color-border); background: var(--color-bg-elevated); cursor: pointer; font-size: 0.8125rem; font-weight: 500; transition: all var(--transition-fast); }
+.moyenCard:hover { border-color: var(--color-primary); }
+.moyenSelected { border-color: var(--color-primary); background: var(--color-primary-glow); color: var(--color-primary); }
+@media (max-width: 480px) { .moyenGrid { grid-template-columns: 1fr; } }
+
+/* Confirmation */
+.confirmCard { max-width: 440px; margin: auto; border-radius: var(--radius-xl); padding: var(--space-12); display: flex; flex-direction: column; align-items: center; gap: var(--space-6); text-align: center; box-shadow: var(--shadow-lg); }
+.confirmIcon { width: 72px; height: 72px; background: hsla(143, 71%, 48%, 0.12); border: 2px solid var(--color-success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--color-success); animation: pulse-success 2s ease infinite; }
+@keyframes pulse-success { 0%, 100% { box-shadow: 0 0 0 0 hsla(143, 71%, 48%, 0.3); } 50% { box-shadow: 0 0 0 14px hsla(143, 71%, 48%, 0); } }
+.confirmCard p { color: var(--color-text-secondary); line-height: 1.7; }

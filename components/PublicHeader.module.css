@@ -1,0 +1,144 @@
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 0 1.5rem;
+  background: hsla(0, 0%, 100%, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid hsla(210, 14%, 89%, 0.6);
+  font-family: 'Poppins', system-ui, sans-serif;
+}
+
+.navContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.logo {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: hsl(206, 82%, 20%);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+}
+
+.logoIcon {
+  font-size: 1.4rem;
+  background: linear-gradient(135deg, hsl(208, 80%, 48%), hsl(206, 82%, 24%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.logoPro {
+  background: linear-gradient(135deg, hsl(208, 80%, 48%), hsl(206, 82%, 24%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.navLink {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(210, 10%, 45%);
+  text-decoration: none;
+  padding: 0.5rem 0.875rem;
+  border-radius: 8px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navLink:hover {
+  color: hsl(206, 82%, 20%);
+  background: hsla(0, 0%, 100%, 0.85);
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btnOutline {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(210, 10%, 45%);
+  text-decoration: none;
+  padding: 0.5rem 1.125rem;
+  border-radius: 8px;
+  border: 1px solid hsla(210, 14%, 89%, 0.6);
+  background: transparent;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+}
+
+.btnOutline:hover {
+  color: hsl(206, 82%, 20%);
+  border-color: rgba(255,255,255,0.2);
+  background: hsla(0, 0%, 100%, 0.85);
+}
+
+.btnPrimary {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  background: hsl(208, 80%, 48%);
+  border: 1px solid transparent;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+}
+
+.btnPrimary:hover {
+  background: #1d4ed8;
+  box-shadow: 0 0 20px hsla(208, 80%, 48%, 0.15);
+}
+
+.mobileMenuBtn {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-left: auto;
+}
+
+.mobileMenuBtn span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: hsl(210, 10%, 45%);
+  border-radius: 2px;
+}
+
+@media (max-width: 768px) {
+  .navLinks, .navActions {
+    display: none;
+  }
+  .mobileMenuBtn {
+    display: flex;
+  }
+}

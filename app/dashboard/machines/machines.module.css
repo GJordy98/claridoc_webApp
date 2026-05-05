@@ -1,0 +1,17 @@
+.page { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-8); }
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+.quota { display: flex; align-items: baseline; gap: var(--space-2); padding: var(--space-3) var(--space-6); border-radius: var(--radius-full); }
+.quotaNum { font-family: var(--font-title); font-size: 2rem; font-weight: 700; color: var(--color-primary); }
+.quotaSep { font-size: 1.25rem; color: var(--color-text-muted); }
+.quotaTotal { font-family: var(--font-title); font-size: 1.5rem; font-weight: 600; color: var(--color-text-secondary); }
+.quotaLabel { font-size: 0.8rem; color: var(--color-text-muted); margin-left: var(--space-2); }
+.tableWrap { border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md); }
+.table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.table thead tr { background: var(--color-bg-elevated); border-bottom: 1px solid var(--color-border); }
+.table th { text-align: left; padding: var(--space-3) var(--space-4); font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); letter-spacing: 0.06em; text-transform: uppercase; }
+.table td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border); color: var(--color-text-primary); vertical-align: middle; }
+.table tbody tr:last-child td { border-bottom: none; }
+.table tbody tr { transition: background var(--transition-fast); }
+.table tbody tr:hover { background: var(--color-bg-elevated); }
+.tdName { font-weight: 600; }
+.hwid { font-family: monospace; font-size: 0.78rem; background: var(--color-bg-elevated); padding: 2px var(--space-2); border-radius: var(--radius-sm); color: var(--color-accent); letter-spacing: 0.05em; }

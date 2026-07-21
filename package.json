@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node --max-old-space-size=4096 node_modules/next/dist/bin/next dev --webpack",
+    "build": "node --max-old-space-size=4096 node_modules/next/dist/bin/next build",
+    "build:safe": "node --max-old-space-size=2048 node_modules/next/dist/bin/next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@marsidev/react-turnstile": "^1.5.3",
     "next": "16.2.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",

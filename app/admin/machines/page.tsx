@@ -45,7 +45,7 @@ export default function AdminMachinesPage() {
   const active = machines.filter(m => m.is_active).length;
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+    <div style={{ width: '100%' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }} className="animate-fade-in">
         <div>

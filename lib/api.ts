@@ -18,8 +18,9 @@ async function apiFetch(path: string, options: RequestInit = {}) {
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
 
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ message: 'Erreur inconnue' }));
-    throw new Error(error.message || `Erreur ${res.status}`);
+    const dataObj = await res.json().catch(() => ({ message: 'Erreur inconnue' }));
+    const errorMessage = dataObj.error || dataObj.message || `Erreur ${res.status}`;
+    throw new Error(errorMessage);
   }
 
   return res.json();
@@ -30,7 +31,13 @@ export const apiLogin = (email: string, password: string) =>
   apiFetch('/auth/login/', { method: 'POST', body: JSON.stringify({ username: email, password }) });
 
 export const apiRegister = (data: {
-  nom_societe: string; first_name: string; last_name: string; email: string; password: string; telephone: string;
+  nom_societe: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
+  telephone: string;
+  captcha_token?: string | null;
 }) => apiFetch('/auth/register/', { method: 'POST', body: JSON.stringify(data) });
 
 export const apiVerifyOTP = (email: string, code: string) =>
@@ -63,19 +70,37 @@ export const apiSubmitPayment = (data: FormData) => {
   const token = typeof document !== 'undefined'
     ? (document.cookie.match(/claridoc_token=([^;]+)/)?.[1] ?? null)
     : null;
-  // Ne PAS mettre Content-Type manuellement : le navigateur le gère pour multipart
   return fetch(`${API_BASE}/payments/`, {
     method: 'POST',
     headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: data,
   }).then(async res => {
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ message: 'Erreur inconnue' }));
-      throw new Error(err.message || `Erreur ${res.status}`);
+      const errObj = await res.json().catch(() => ({ message: 'Erreur inconnue' }));
+      const msg = errObj.error || errObj.message || `Erreur ${res.status}`;
+      throw new Error(msg);
     }
     return res.json();
   });
 };
+
+export const apiInitiateSteevePay = (
+  paymentRequestId: number,
+  telephone: string,
+  providerId: number
+) =>
+  apiFetch('/pay/initiate/', {
+    method: 'POST',
+    body: JSON.stringify({
+      payment_request_id: paymentRequestId,
+      telephone,
+      provider_id: providerId,
+    }),
+  });
+
+export const apiCheckPaymentStatus = (hubReference: string) =>
+  apiFetch(`/pay/status/${hubReference}/`);
+
 export const apiValidatePayment = (
   id: number,
   action: 'accept' | 'reject',
@@ -105,3 +130,12 @@ export const apiGetLogs = (params?: { userId?: number; action?: string; clientId
 export const apiGetFichiers = (userId?: number) => apiFetch(`/fichiers/${userId ? `?user_id=${userId}` : ''}`);
 export const apiGetUsageStats = () => apiFetch('/clients/usage_stats/');
 export const apiGetActionStats = () => apiFetch('/logs/action_stats/');
+
+// ─── VISITEURS ─────────────────────────────────────────────────────────────────
+/** Récupère la liste des visiteurs. statut = 'PRESENT' | 'PARTI' | undefined (tous) */
+export const apiGetVisiteurs = (statut?: 'PRESENT' | 'PARTI') =>
+  apiFetch(`/visiteurs/${statut ? `?statut=${statut}` : ''}`);
+
+/** Enregistre la sortie d'un visiteur */
+export const apiVisiteurSortie = (id: number) =>
+  apiFetch(`/visiteurs/${id}/sortie/`, { method: 'POST' });

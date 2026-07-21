@@ -4,9 +4,12 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { apiRegister, apiVerifyOTP } from '@/lib/api';
-import PhoneInput from 'react-phone-number-input';
+import dynamic from 'next/dynamic';
 import 'react-phone-number-input/style.css';
 import styles from './register.module.css';
+
+const PhoneInput = dynamic(() => import('react-phone-number-input'), { ssr: false });
+const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then(mod => mod.Turnstile), { ssr: false });
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -25,6 +28,7 @@ export default function RegisterPage() {
   });
   
   const [otp, setOtp] = useState('');
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -49,6 +53,10 @@ export default function RegisterPage() {
       setError('Le numéro de téléphone est requis.');
       return;
     }
+    if (!captchaToken) {
+      setError('Veuillez valider le CAPTCHA de sécurité.');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -59,6 +67,7 @@ export default function RegisterPage() {
         email: form.email,
         password: form.password,
         telephone: form.telephone,
+        captcha_token: captchaToken,
       });
       // Si on reçoit otp_required, on passe à l'étape 2
       if (res.otp_required) {
@@ -211,6 +220,16 @@ export default function RegisterPage() {
                     }`} />
                   </div>
                 )}
+
+                {/* CAPTCHA Turnstile */}
+                <div style={{ display: 'flex', justifyContent: 'center', margin: '0.5rem 0' }}>
+                  <Turnstile
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
+                    onSuccess={(token) => setCaptchaToken(token)}
+                    onExpire={() => setCaptchaToken(null)}
+                    onError={() => setCaptchaToken(null)}
+                  />
+                </div>
 
                 {error && (
                   <div className={styles.errorBox} role="alert">

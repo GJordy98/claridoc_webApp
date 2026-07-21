@@ -37,8 +37,28 @@ const features = [
 
 const plans = [
   {
+    name: "Démo",
+    range: "2 postes — 2 semaines",
+    prix_fixe: 50,
+    mensuel: null,
+    annuel: null,
+    badge: "🎯 Démo",
+    description: "Testez ClariDoc Pro pendant 2 semaines sur 2 PCs.",
+    features: [
+      "2 PCs autorisés",
+      "Durée : 14 jours",
+      "Email + code d'activation",
+      "Paiement automatique OM/MoMo/Carte",
+    ],
+    cta: "Essayer maintenant",
+    href: "/register",
+    highlighted: false,
+    isDemo: true,
+  },
+  {
     name: "Starter",
     range: "1 – 3 postes",
+    prix_fixe: null,
     mensuel: 15000,
     annuel: 150000,
     badge: null,
@@ -52,10 +72,12 @@ const plans = [
     cta: "Commencer",
     href: "/register",
     highlighted: false,
+    isDemo: false,
   },
   {
     name: "Business",
     range: "4 – 8 postes",
+    prix_fixe: null,
     mensuel: 35000,
     annuel: 350000,
     badge: "Populaire",
@@ -69,10 +91,12 @@ const plans = [
     cta: "Commencer",
     href: "/register",
     highlighted: true,
+    isDemo: false,
   },
   {
     name: "Scale",
     range: "9 – 20 postes",
+    prix_fixe: null,
     mensuel: 70000,
     annuel: 700000,
     badge: null,
@@ -86,10 +110,12 @@ const plans = [
     cta: "Commencer",
     href: "/register",
     highlighted: false,
+    isDemo: false,
   },
   {
     name: "Entreprise",
     range: "Sur mesure",
+    prix_fixe: null,
     mensuel: null,
     annuel: null,
     badge: null,
@@ -103,8 +129,10 @@ const plans = [
     cta: "Nous contacter",
     href: "/contact",
     highlighted: false,
+    isDemo: false,
   },
 ];
+
 
 const sectors = [
   { name: "Banques & Assurances", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11m16-11v11M8 14v3m4-3v3m4-3v3" /></svg> },
@@ -327,11 +355,12 @@ export default function HomePage() {
           </div>
           <div className={styles.pricingGrid}>
             {plans.map((plan) => {
-              const prix = duree === 'Mensuel' ? plan.mensuel : plan.annuel;
+              const prix = plan.isDemo ? null : (duree === 'Mensuel' ? plan.mensuel : plan.annuel);
               return (
                 <div
                   key={plan.name}
                   className={`${styles.pricingCard} ${plan.highlighted ? styles.pricingCardHighlighted : ""}`}
+                  style={plan.isDemo ? { borderColor: 'var(--color-primary, #6366f1)' } : {}}
                 >
                   {plan.badge && <span className={styles.pricingBadge}>{plan.badge}</span>}
                   <div className={styles.pricingHeader}>
@@ -339,7 +368,12 @@ export default function HomePage() {
                     <p className={styles.planRange}>{plan.range}</p>
                   </div>
 
-                  {prix ? (
+                  {plan.isDemo ? (
+                    <div className={styles.forfaitPrix}>
+                      <span className={styles.prixNum}>50</span>
+                      <span className={styles.prixUnit}> FCFA — 2 semaines</span>
+                    </div>
+                  ) : prix ? (
                     <div className={styles.forfaitPrix}>
                       <span className={styles.prixNum}>{prix.toLocaleString('fr')}</span>
                       <span className={styles.prixUnit}> XAF / {duree === 'Mensuel' ? 'mois' : 'an'}</span>
@@ -371,6 +405,7 @@ export default function HomePage() {
               )
             })}
           </div>
+
           <div className={styles.pricingNote}>
             <p>Besoin d'une configuration spéciale ?{" "}
               <Link href="/contact" className={styles.pricingNoteLink}>Contactez notre équipe →</Link>

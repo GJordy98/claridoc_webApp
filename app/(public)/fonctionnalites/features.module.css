@@ -15,7 +15,7 @@
 }
 
 .navContainer {
-  max-width: 1200px;
+  max-width: 95%;
   margin: 0 auto;
   height: 68px;
   display: flex;
@@ -56,7 +56,7 @@
 
 /* ── MAIN ── */
 .main {
-  max-width: 1200px;
+  max-width: 95%;
   margin: 0 auto;
   padding: 6rem 1.5rem;
   position: relative;

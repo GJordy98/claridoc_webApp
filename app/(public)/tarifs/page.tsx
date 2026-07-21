@@ -6,19 +6,37 @@ import styles from './tarifs.module.css';
 
 const plans = [
   {
+    name: "Démo",
+    range: "2 postes — 2 semaines",
+    prix_fixe: 50,
+    mensuel: null,
+    annuel: null,
+    badge: "🎯 Démo",
+    description: "Testez ClariDoc Pro pendant 2 semaines sur 2 PCs.",
+    features: ["2 PCs autorisés", "Durée : 14 jours", "Email + code d'activation", "Paiement automatique OM/MoMo/Carte"],
+    cta: "Essayer maintenant",
+    href: "/register",
+    highlighted: false,
+    isDemo: true,
+  },
+  {
     name: "Starter",
     range: "1 – 3 postes",
+    prix_fixe: null,
     mensuel: 15000,
     annuel: 150000,
+    badge: null,
     description: "Idéal pour les indépendants et petites structures.",
     features: ["Numérisation A400/4K", "Archivage local sécurisé", "1 succursale", "Support email"],
     cta: "Commencer",
     href: "/register",
     highlighted: false,
+    isDemo: false,
   },
   {
     name: "Business",
     range: "4 – 8 postes",
+    prix_fixe: null,
     mensuel: 35000,
     annuel: 350000,
     badge: "Populaire",
@@ -27,30 +45,38 @@ const plans = [
     cta: "Commencer",
     href: "/register",
     highlighted: true,
+    isDemo: false,
   },
   {
     name: "Scale",
     range: "9 – 20 postes",
+    prix_fixe: null,
     mensuel: 70000,
     annuel: 700000,
+    badge: null,
     description: "Pour les entreprises avec de forts volumes documentaires.",
     features: ["Tout du plan Business", "Succursales illimitées", "Journal d'audit complet", "Onboarding dédié"],
     cta: "Commencer",
     href: "/register",
     highlighted: false,
+    isDemo: false,
   },
   {
     name: "Entreprise",
     range: "Sur mesure",
+    prix_fixe: null,
     mensuel: null,
     annuel: null,
+    badge: null,
     description: "Solution 100% personnalisée pour les grandes organisations.",
     features: ["Infrastructure dédiée", "SLA garanti", "Intégrations personnalisées", "Account manager dédié"],
     cta: "Nous contacter",
     href: "/contact",
     highlighted: false,
+    isDemo: false,
   },
 ];
+
 
 export default function TarifsPage() {
   const [duree, setDuree] = useState<'Mensuel' | 'Annuel'>('Mensuel');
@@ -78,16 +104,22 @@ export default function TarifsPage() {
 
         <div className={styles.pricingGrid}>
           {plans.map((plan) => {
-            const prix = duree === 'Mensuel' ? plan.mensuel : plan.annuel;
+            const prix = plan.isDemo ? null : (duree === 'Mensuel' ? plan.mensuel : plan.annuel);
             return (
-            <div key={plan.name} className={`${styles.pricingCard} glass ${plan.highlighted ? styles.highlighted : ''}`}>
+            <div key={plan.name} className={`${styles.pricingCard} glass ${plan.highlighted ? styles.highlighted : ''}`}
+              style={plan.isDemo ? { borderColor: 'var(--color-primary, #6366f1)', position: 'relative' } : {}}>
               {plan.badge && <span className={styles.badge}>{plan.badge}</span>}
               <div className={styles.cardHeader}>
                 <h2 className={styles.planName}>{plan.name}</h2>
                 <p className={styles.planRange}>{plan.range}</p>
               </div>
 
-              {prix ? (
+              {plan.isDemo ? (
+                <div className={styles.forfaitPrix}>
+                  <span className={styles.prixNum}>50</span>
+                  <span className={styles.prixUnit}> FCFA — 2 semaines</span>
+                </div>
+              ) : prix ? (
                 <div className={styles.forfaitPrix}>
                   <span className={styles.prixNum}>{prix.toLocaleString('fr')}</span>
                   <span className={styles.prixUnit}> XAF / {duree === 'Mensuel' ? 'mois' : 'an'}</span>
@@ -115,6 +147,7 @@ export default function TarifsPage() {
             </div>
           )})}
         </div>
+
 
         <section className={styles.comparison}>
           <h3 className={styles.compTitle}>Inclus dans tous les plans</h3>

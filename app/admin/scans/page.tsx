@@ -50,7 +50,7 @@ export default function AdminScansPage() {
   );
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+    <div style={{ width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }} className="animate-fade-in">
         <div>
           <h1 className="title-lg">Historique des Scans</h1>

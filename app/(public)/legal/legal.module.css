@@ -8,7 +8,7 @@
 }
 
 .hero {
-  max-width: 1200px;
+  max-width: 95%;
   margin: 0 auto;
   padding: 0 2rem;
   text-align: center;
@@ -38,7 +38,7 @@
 }
 
 .contentWrapper {
-  max-width: 1200px;
+  max-width: 95%;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -147,7 +147,7 @@
 }
 
 .footerContent {
-  max-width: 1200px;
+  max-width: 95%;
   margin: 0 auto;
   padding: 0 2rem;
   color: #94a3b8;

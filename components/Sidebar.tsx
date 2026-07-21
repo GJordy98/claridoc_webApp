@@ -71,6 +71,15 @@ const iconClients = (
   </svg>
 );
 
+const iconVisiteurs = (
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <circle cx="6" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.5"/>
+    <path d="M1 15c0-2.761 2.239-4 5-4s5 1.239 5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <circle cx="13" cy="5" r="2" stroke="currentColor" strokeWidth="1.4"/>
+    <path d="M11 15c0-2.5 1.5-4 4-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+  </svg>
+);
+
 function NavLink({ item }: { item: NavItem }) {
   const pathname = usePathname();
   const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
@@ -89,6 +98,7 @@ export default function Sidebar({ role, userName, clientNom }: SidebarProps) {
   const dashboardNav: NavItem[] = [
     { href: '/dashboard', label: 'Tableau de bord', icon: iconDashboard },
     { href: '/dashboard/users', label: 'Utilisateurs', icon: iconUsers },
+    { href: '/dashboard/visiteurs', label: 'Registre Visiteurs', icon: iconVisiteurs },
     { href: '/dashboard/machines', label: 'Postes (HWID)', icon: iconMachines },
     { href: '/dashboard/licence', label: 'Licences', icon: iconLicence },
     { href: '/dashboard/scans', label: 'Historique Scans', icon: iconAudit },

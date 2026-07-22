@@ -179,7 +179,12 @@
 
 .planName { font-family: 'Poppins', system-ui, sans-serif; font-size: 1.5rem; font-weight: 700; }
 .planRange { color: hsl(208, 80%, 48%); font-weight: 600; font-size: 0.9rem; }
-.planDesc { font-size: 0.875rem; color: hsl(210, 10%, 45%); line-height: 1.6; }
+.planDesc {
+  font-size: 0.875rem;
+  color: hsl(210, 10%, 45%);
+  line-height: 1.6;
+  min-height: 3rem;
+}
 
 .planFeatures {
   list-style: none;

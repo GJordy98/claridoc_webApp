@@ -668,9 +668,8 @@
 
 .pricingGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.25rem;
-  align-items: start;
 }
 
 /* ── PRICING TOGGLE ── */
@@ -746,6 +745,7 @@
   font-size: 0.875rem;
   line-height: 1.6;
   color: var(--text-muted);
+  min-height: 3rem;
 }
 
 .planFeatures {

@@ -30,9 +30,9 @@ const FORFAITS = FORFAITS_STANDARDS;
 
 // ─── Providers de paiement via le hub de Steeve ───────────────────────────────
 const PROVIDERS = [
-  { id: 1, value: 'ORANGE_MONEY', label: 'Orange Money',     icon: '🟠', needsPhone: true  },
-  { id: 2, value: 'MTN_MOMO',     label: 'MTN Mobile Money', icon: '📱', needsPhone: true  },
-  { id: 3, value: 'CARTE',        label: 'Carte Bancaire',   icon: '💳', needsPhone: false },
+  { id: 1, value: 'ORANGE_MONEY', label: 'Orange Money',     image: '/images/payments/orange_money.png', needsPhone: true  },
+  { id: 2, value: 'MTN_MOMO',     label: 'MTN Mobile Money', image: '/images/payments/mtn_momo.png',     needsPhone: true  },
+  { id: 3, value: 'CARTE',        label: 'Carte Bancaire',   image: '/images/payments/carte_bancaire.jpg',needsPhone: false },
   { id: null, value: 'VIREMENT',  label: 'Virement Bancaire',icon: '🏦', needsPhone: false },
 ];
 
@@ -47,11 +47,24 @@ const MOYEN_PAIEMENT_MAP: Record<string, string> = {
 type Step = 'forfaits' | 'paiement' | 'attente' | 'confirmation';
 type Duree = 'Mensuel' | 'Annuel' | 'Démo (2 semaines)';
 
+// ─── Indicatifs Pays pour Mobile Money ─────────────────────────────────────────
+const PAYS_INDICATIFS = [
+  { code: '237', flag: '🇨🇲', name: 'Cameroun (+237)' },
+  { code: '241', flag: '🇬🇦', name: 'Gabon (+241)' },
+  { code: '225', flag: '🇨🇮', name: "Côte d'Ivoire (+225)" },
+  { code: '221', flag: '🇸🇳', name: 'Sénégal (+221)' },
+  { code: '242', flag: '🇨🇬', name: 'Congo (+242)' },
+  { code: '229', flag: '🇧🇯', name: 'Bénin (+229)' },
+  { code: '228', flag: '🇧🇹', name: 'Togo (+228)' },
+  { code: '226', flag: '🇧🇫', name: 'Burkina Faso (+226)' },
+];
+
 export default function LicencePage() {
   const [succursales, setSuccursales] = useState<{id: number; nom: string}[]>([]);
   const [licences, setLicences]       = useState<any[]>([]);
   const [selected, setSelected]       = useState<{postes: string; duree: Duree} | null>(null);
   const [step, setStep]               = useState<Step>('forfaits');
+  const [indicatif, setIndicatif]     = useState('237');
   const [form, setForm]               = useState({
     succursale_id: '',
     nom_nouvelle:  '',
@@ -157,9 +170,12 @@ export default function LicencePage() {
 
       // 2a. Paiement via hub de Steeve (OM, MoMo, Carte)
       if (isHubPayment && paymentRequest.id) {
-        let cleanPhone = form.telephone.replace(/\D/g, '');
-        if (cleanPhone.length === 9 && (cleanPhone.startsWith('6') || cleanPhone.startsWith('2'))) {
-          cleanPhone = '237' + cleanPhone;
+        let rawDigits = form.telephone.replace(/\D/g, '');
+        let cleanPhone: string;
+        if (rawDigits.startsWith(indicatif)) {
+          cleanPhone = rawDigits;
+        } else {
+          cleanPhone = indicatif + rawDigits;
         }
         const result = await apiInitiateSteevePay(
           paymentRequest.id,
@@ -343,7 +359,17 @@ export default function LicencePage() {
               fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em',
               padding: '0.2rem 0.75rem', borderRadius: '100px',
             }}>🎯 DÉMO</div>
-            {selected?.postes === FORFAIT_DEMO.postes && <div className={styles.selectedBadge}>✓ Sélectionné</div>}
+            <div
+              className={styles.selectedBadge}
+              style={{
+                opacity: selected?.postes === FORFAIT_DEMO.postes ? 1 : 0,
+                transform: selected?.postes === FORFAIT_DEMO.postes ? 'translateX(-50%) scale(1)' : 'translateX(-50%) scale(0.5)',
+                pointerEvents: 'none',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <span>✓ Sélectionné</span>
+            </div>
             <div className={styles.forfaitPostes}>{FORFAIT_DEMO.postes}</div>
             <div className={styles.forfaitPrix}>
               <span className={styles.prixNum}>50</span>
@@ -360,7 +386,7 @@ export default function LicencePage() {
               style={{ width: '100%' }}
               onClick={e => { e.stopPropagation(); setSelected({ postes: FORFAIT_DEMO.postes, duree: 'Démo (2 semaines)' }); }}
             >
-              Essayer la démo
+              <span>Essayer la démo</span>
             </button>
           </div>
 
@@ -370,7 +396,7 @@ export default function LicencePage() {
               <button key={d}
                 className={`${styles.toggleBtn} ${(selected?.duree === d || (!selected && d === 'Mensuel')) ? styles.toggleActive : ''}`}
                 onClick={() => setSelected(s => s ? { ...s, duree: d } : { postes: '1-3 PCs', duree: d })}>
-                {d} {d === 'Annuel' && <span className={styles.discount}>-17%</span>}
+                <span>{d}</span> {d === 'Annuel' && <span className={styles.discount}>-17%</span>}
               </button>
             ))}
           </div>
@@ -384,7 +410,17 @@ export default function LicencePage() {
                 <div key={f.postes}
                   className={`${styles.forfaitCard} glass ${isSelected ? styles.forfaitSelected : ''}`}
                   onClick={() => f.mensuel && setSelected({ postes: f.postes, duree: duree as 'Mensuel' | 'Annuel' })}>
-                  {isSelected && <div className={styles.selectedBadge}>✓ Sélectionné</div>}
+                  <div
+                    className={styles.selectedBadge}
+                    style={{
+                      opacity: isSelected ? 1 : 0,
+                      transform: isSelected ? 'translateX(-50%) scale(1)' : 'translateX(-50%) scale(0.5)',
+                      pointerEvents: 'none',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    <span>✓ Sélectionné</span>
+                  </div>
                   <div className={styles.forfaitPostes}>{f.postes}</div>
                   {prix ? (
                     <div className={styles.forfaitPrix}>
@@ -403,11 +439,11 @@ export default function LicencePage() {
                   {f.mensuel ? (
                     <button className={`btn ${isSelected ? 'btn-primary' : 'btn-ghost'}`} style={{ width: '100%' }}
                       onClick={e => { e.stopPropagation(); setSelected({ postes: f.postes, duree: duree as 'Mensuel' | 'Annuel' }); }}>
-                      Choisir ce forfait
+                      <span>Choisir ce forfait</span>
                     </button>
                   ) : (
                     <a href="/contact" className="btn btn-ghost" style={{ width: '100%', textAlign: 'center' }}>
-                      Nous contacter
+                      <span>Nous contacter</span>
                     </a>
                   )}
                 </div>
@@ -415,14 +451,20 @@ export default function LicencePage() {
             })}
           </div>
 
-          {selected && (
-            <div className={styles.actionBar}>
-              <div><strong>{selected.postes}</strong> — {selected.duree}</div>
-              <button className="btn btn-primary" onClick={() => setStep('paiement')}>
-                Procéder au paiement →
-              </button>
-            </div>
-          )}
+          <div
+            className={styles.actionBar}
+            style={{
+              opacity: selected ? 1 : 0,
+              visibility: selected ? 'visible' : 'hidden',
+              transition: 'all 0.25s ease',
+              marginTop: '1.5rem',
+            }}
+          >
+            <div><strong>{selected?.postes || ''}</strong> — {selected?.duree || ''}</div>
+            <button className="btn btn-primary" onClick={() => setStep('paiement')}>
+              <span>Procéder au paiement →</span>
+            </button>
+          </div>
         </>
       )}
 
@@ -474,128 +516,176 @@ export default function LicencePage() {
 
             {/* Mode de paiement */}
             <div className="input-group">
-              <label>Mode de paiement</label>
+              <label className={styles.moyenLabelHeader}>Mode de paiement</label>
               <div className={styles.moyenGrid}>
-                {PROVIDERS.map(p => (
-                  <div key={p.value}
-                    className={`${styles.moyenCard} ${form.moyen === p.value ? styles.moyenSelected : ''}`}
-                    onClick={() => setForm(f => ({ ...f, moyen: p.value, telephone: '' }))}>
-                    <span style={{ fontSize: '1.5rem' }}>{p.icon}</span>
-                    <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{p.label}</span>
-                    {p.value !== 'VIREMENT' && (
-                      <span style={{ fontSize: '0.7rem', color: 'var(--color-success)', fontWeight: 500 }}>
-                        Automatique
-                      </span>
-                    )}
-                  </div>
-                ))}
+                {PROVIDERS.map(p => {
+                  const isSelected = form.moyen === p.value;
+                  return (
+                    <div
+                      key={p.value}
+                      className={`${styles.moyenCard} ${isSelected ? styles.moyenSelected : ''}`}
+                      onClick={() => setForm(f => ({ ...f, moyen: p.value, telephone: '' }))}
+                    >
+                      <div
+                        className={styles.moyenCheckBadge}
+                        style={{
+                          opacity: isSelected ? 1 : 0,
+                          transform: isSelected ? 'scale(1)' : 'scale(0.5)',
+                          pointerEvents: 'none',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </div>
+                      
+                      <div className={styles.moyenLogoBox}>
+                        {p.image ? (
+                          <img src={p.image} alt={p.label} className={styles.moyenImg} />
+                        ) : (
+                          <span className={styles.moyenIconEmoji}>{p.icon}</span>
+                        )}
+                      </div>
+                      
+                      <span className={styles.moyenTitle}>{p.label}</span>
+                      
+                      {p.value !== 'VIREMENT' ? (
+                        <span className={styles.moyenBadgeAuto}>
+                          <span className={styles.dotSuccess} />
+                          <span>Automatique</span>
+                        </span>
+                      ) : (
+                        <span className={styles.moyenBadgeManuel}>
+                          <span>Manuel</span>
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Champ téléphone — affiché pour OM et MoMo uniquement */}
-            {isHubPayment && selectedProvider?.needsPhone && (
-              <div className="input-group">
-                <label htmlFor="telephone">
-                  Numéro de téléphone du payeur
-                  <span style={{ color: 'var(--color-danger)', marginLeft: 4 }}>*</span>
-                </label>
-                <input
-                  id="telephone"
-                  className="input"
-                  type="tel"
-                  placeholder="Ex: 237655000000"
-                  value={form.telephone}
-                  onChange={e => setForm(f => ({ ...f, telephone: e.target.value.trim() }))}
-                  required
-                />
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>
-                  Format international : 237 suivi des 9 chiffres (ex: 237655123456)
-                </p>
+            {/* Champ téléphone avec indicatif pays — affiché pour OM et MoMo uniquement */}
+            <div className="input-group" style={{ display: (isHubPayment && selectedProvider?.needsPhone) ? 'block' : 'none' }}>
+              <label htmlFor="telephone">
+                <span>Numéro de téléphone du payeur</span>
+                <span style={{ color: 'var(--color-danger)', marginLeft: 4 }}>*</span>
+              </label>
+              
+              <div className={styles.phoneInputWrapper}>
+                <select
+                  className={styles.countrySelect}
+                  value={indicatif}
+                  onChange={e => setIndicatif(e.target.value)}
+                >
+                  {PAYS_INDICATIFS.map(p => (
+                    <option key={p.code} value={p.code}>
+                      {p.flag} +{p.code} ({p.name.split(' ')[0]})
+                    </option>
+                  ))}
+                </select>
+                
+                <div className={styles.phoneInputContainer}>
+                  <span className={styles.prefixBadge}>+{indicatif}</span>
+                  <input
+                    id="telephone"
+                    className={styles.phoneInput}
+                    type="tel"
+                    placeholder="655 00 00 00"
+                    value={form.telephone}
+                    onChange={e => setForm(f => ({ ...f, telephone: e.target.value }))}
+                    required={isHubPayment && Boolean(selectedProvider?.needsPhone)}
+                  />
+                </div>
               </div>
-            )}
+              
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.35rem' }}>
+                <span>Sélectionnez votre pays et entrez le numéro de votre compte Orange Money ou MTN MoMo.</span>
+              </p>
+            </div>
 
             {/* Message info pour paiements hub */}
-            {isHubPayment && (
-              <div style={{
-                background: 'hsla(210,100%,56%,0.08)',
-                border: '1px solid hsla(210,100%,56%,0.2)',
-                borderRadius: 'var(--radius-md)',
-                padding: '0.875rem 1rem',
-                fontSize: '0.875rem',
-                color: 'var(--color-text-secondary)',
-              }}>
-                💡 Après confirmation, vous recevrez une notification sur votre téléphone pour valider le paiement.
-                Votre licence sera activée automatiquement et le code envoyé par email.
-              </div>
-            )}
+            <div style={{
+              display: isHubPayment ? 'block' : 'none',
+              background: 'hsla(210,100%,56%,0.08)',
+              border: '1px solid hsla(210,100%,56%,0.2)',
+              borderRadius: 'var(--radius-md)',
+              padding: '0.875rem 1rem',
+              fontSize: '0.875rem',
+              color: 'var(--color-text-secondary)',
+            }}>
+              <span>💡 Après confirmation, vous recevrez une notification sur votre téléphone pour valider le paiement. Votre licence sera activée automatiquement et le code envoyé par email.</span>
+            </div>
 
             {/* Preuve de paiement — uniquement pour Virement */}
-            {!isHubPayment && (
-              <>
-                <div className="input-group">
-                  <label htmlFor="preuve">Référence de transaction / N° de reçu</label>
-                  <input id="preuve" className="input" type="text"
-                    placeholder="Ex: VIR-XXXXXXX"
-                    value={form.preuve}
-                    onChange={e => setForm(f => ({ ...f, preuve: e.target.value }))}
-                    required />
-                </div>
-                <div className="input-group">
-                  <label htmlFor="preuve-fichier">
-                    Preuve de paiement <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(optionnel — image ou PDF)</span>
-                  </label>
-                  <label htmlFor="preuve-fichier" style={{
-                    display: 'flex', alignItems: 'center', gap: '0.75rem',
-                    padding: '0.75rem 1rem', border: '2px dashed var(--color-border)',
-                    borderRadius: 'var(--radius-md)', cursor: 'pointer',
-                    background: 'var(--color-bg-elevated)', transition: 'border-color 0.2s',
-                  }}
-                    onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
-                    onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--color-border)')}
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
-                      strokeLinecap="round" strokeLinejoin="round"
-                      style={{ flexShrink: 0, color: 'var(--color-primary)' }}>
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                      <polyline points="17 8 12 3 7 8"/>
-                      <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                    <span style={{ fontSize: '0.875rem', color: fichier ? 'var(--color-success)' : 'var(--color-text-secondary)' }}>
-                      {fichier ? fichier.name : 'Cliquer pour joindre un fichier (PNG, JPG, PDF)'}
-                    </span>
-                  </label>
-                  <input id="preuve-fichier" type="file" accept="image/png,image/jpeg,image/jpg,application/pdf"
-                    style={{ display: 'none' }}
-                    onChange={e => setFichier(e.target.files?.[0] ?? null)} />
-                  {fichier && fichier.type.startsWith('image/') && (
-                    <div style={{ marginTop: '0.5rem', borderRadius: 'var(--radius-md)', overflow: 'hidden', maxHeight: 200 }}>
-                      <img src={URL.createObjectURL(fichier)} alt="Aperçu" style={{ width: '100%', objectFit: 'cover', maxHeight: 200 }} />
-                    </div>
-                  )}
-                  {fichier && (
-                    <button type="button" onClick={() => setFichier(null)}
-                      style={{ fontSize: '0.75rem', color: 'var(--color-danger)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginTop: '0.25rem' }}>
-                      × Supprimer le fichier
-                    </button>
-                  )}
-                </div>
-              </>
-            )}
-
-            {error && (
-              <div style={{ color: 'var(--color-danger)', fontSize: '0.875rem', padding: '0.75rem', background: 'hsla(0,100%,50%,0.08)', borderRadius: 'var(--radius-md)' }}>
-                ⚠ {error}
+            <div style={{ display: !isHubPayment ? 'flex' : 'none', flexDirection: 'column', gap: '1rem' }}>
+              <div className="input-group">
+                <label htmlFor="preuve"><span>Référence de transaction / N° de reçu</span></label>
+                <input id="preuve" className="input" type="text"
+                  placeholder="Ex: VIR-XXXXXXX"
+                  value={form.preuve}
+                  onChange={e => setForm(f => ({ ...f, preuve: e.target.value }))}
+                  required={!isHubPayment} />
               </div>
-            )}
+              <div className="input-group">
+                <label htmlFor="preuve-fichier">
+                  <span>Preuve de paiement </span>
+                  <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(optionnel — image ou PDF)</span>
+                </label>
+                <label htmlFor="preuve-fichier" style={{
+                  display: 'flex', alignItems: 'center', gap: '0.75rem',
+                  padding: '0.75rem 1rem', border: '2px dashed var(--color-border)',
+                  borderRadius: 'var(--radius-md)', cursor: 'pointer',
+                  background: 'var(--color-bg-elevated)', transition: 'border-color 0.2s',
+                }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
+                    strokeLinecap="round" strokeLinejoin="round"
+                    style={{ flexShrink: 0, color: 'var(--color-primary)' }}>
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                  <span style={{ fontSize: '0.875rem', color: fichier ? 'var(--color-success)' : 'var(--color-text-secondary)' }}>
+                    {fichier ? fichier.name : 'Cliquer pour joindre un fichier (PNG, JPG, PDF)'}
+                  </span>
+                </label>
+                <input id="preuve-fichier" type="file" accept="image/png,image/jpeg,image/jpg,application/pdf"
+                  style={{ display: 'none' }}
+                  onChange={e => setFichier(e.target.files?.[0] ?? null)} />
+                {fichier && (
+                  <button type="button" onClick={() => setFichier(null)}
+                    style={{ fontSize: '0.75rem', color: 'var(--color-danger)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginTop: '0.25rem' }}>
+                    <span>× Supprimer le fichier</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div style={{
+              display: error ? 'block' : 'none',
+              color: 'var(--color-danger)',
+              fontSize: '0.875rem',
+              padding: '0.75rem',
+              background: 'hsla(0,100%,50%,0.08)',
+              borderRadius: 'var(--radius-md)',
+            }}>
+              <span>⚠ {error}</span>
+            </div>
 
             <button type="submit" id="submit-payment" className="btn btn-primary"
               style={{ width: '100%', padding: '0.875rem' }} disabled={saving}>
-              {saving
-                ? 'Traitement en cours...'
-                : isHubPayment
-                  ? `Payer via ${selectedProvider?.label}`
-                  : 'Envoyer ma demande de virement'
-              }
+              <span>
+                {saving
+                  ? 'Traitement en cours...'
+                  : isHubPayment
+                    ? `Payer via ${selectedProvider?.label || ''}`
+                    : 'Envoyer ma demande de virement'
+                }
+              </span>
             </button>
           </form>
         </div>

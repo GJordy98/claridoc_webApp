@@ -74,9 +74,10 @@
   --transition-base:   260ms ease;
   --transition-slow:   420ms ease;
 
-  /* Typographie — Charte : Poppins */
-  --font-sans:  'Poppins', var(--font-poppins), system-ui, sans-serif;
-  --font-title: 'Poppins', var(--font-poppins), system-ui, sans-serif;
+  /* Typographie — Charte : Poppins, Inter & Montserrat */
+  --font-sans:   'Poppins', var(--font-poppins), system-ui, sans-serif;
+  --font-title:  'Poppins', var(--font-poppins), system-ui, sans-serif;
+  --font-footer: 'Montserrat', var(--font-montserrat), sans-serif;
 
   /* Échelle typographique — Charte ClairiDocpro */
   --text-t1: clamp(3.5rem, 7vw, 6rem);       /* T1 : 96px */

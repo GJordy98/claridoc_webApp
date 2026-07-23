@@ -117,7 +117,7 @@
   background: hsla(0, 0%, 100%, 0.92);
   backdrop-filter: blur(20px);
   border: 1px solid hsla(210, 14%, 89%, 1);
-  border-radius: 24px;
+  border-radius: 10px;
   padding: 3rem 3.5rem;
   box-shadow:
     0 2px 8px hsla(206, 82%, 20%, 0.04),
@@ -199,7 +199,7 @@
   padding: 0.75rem 1rem;
   background: hsla(0, 75%, 55%, 0.08);
   border: 1px solid hsla(0, 75%, 55%, 0.2);
-  border-radius: 10px;
+  border-radius: 6px;
   color: hsl(0, 75%, 50%);
   font-size: 0.8125rem;
   font-weight: 500;
@@ -252,7 +252,7 @@
   background: hsla(0, 0%, 100%, 0.92);
   backdrop-filter: blur(20px);
   border: 1px solid hsla(210, 14%, 89%, 1);
-  border-radius: 24px;
+  border-radius: 10px;
   box-shadow: 0 12px 40px hsla(206, 82%, 20%, 0.08);
   max-width: 400px;
   width: 100%;
@@ -295,7 +295,7 @@
   height: 48px !important;
   background: hsla(210, 20%, 98%, 1) !important;
   border: 1px solid hsla(210, 14%, 89%, 1) !important;
-  border-radius: 12px !important;
+  border-radius: 8px !important;
   font-family: 'Poppins', system-ui, sans-serif !important;
   font-size: 0.8125rem !important;
   color: hsl(206, 82%, 20%) !important;
@@ -350,7 +350,7 @@
 @media (max-width: 820px) {
   .card {
     padding: 2rem 2rem;
-    border-radius: 18px;
+    border-radius: 10px;
   }
 
   .container {

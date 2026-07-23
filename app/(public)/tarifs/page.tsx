@@ -107,7 +107,7 @@ export default function TarifsPage() {
             const prix = plan.isDemo ? null : (duree === 'Mensuel' ? plan.mensuel : plan.annuel);
             return (
             <div key={plan.name} className={`${styles.pricingCard} glass ${plan.highlighted ? styles.highlighted : ''}`}
-              style={plan.isDemo ? { borderColor: 'var(--color-primary, #6366f1)', position: 'relative' } : {}}>
+              style={plan.isDemo ? { borderColor: 'var(--color-primary)', position: 'relative' } : {}}>
               {plan.badge && <span className={styles.badge}>{plan.badge}</span>}
               <div className={styles.cardHeader}>
                 <h2 className={styles.planName}>{plan.name}</h2>
@@ -134,7 +134,7 @@ export default function TarifsPage() {
               <ul className={styles.planFeatures}>
                 {plan.features.map((feat) => (
                   <li key={feat}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-seal)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                     {feat}

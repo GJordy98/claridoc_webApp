@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { apiGetVisiteurs, apiVisiteurSortie } from '@/lib/api';
 
+type TypeDocument = 'CNI' | 'PASSEPORT' | 'AUTRE';
+
 interface Visiteur {
   id: number;
   nom: string;
@@ -14,9 +16,55 @@ interface Visiteur {
   date_entree: string;
   date_sortie: string | null;
   statut: 'PRESENT' | 'PARTI';
+  // Nature de la pièce présentée. Normalisée par le backend à partir de la
+  // valeur fine de l'OCR ('passeport', 'cni_2024_recto'...).
+  // null = visiteur enregistré avant l'introduction du champ (juillet 2026),
+  // ce qui n'est PAS la même chose que 'AUTRE' (pièce présentée, type inconnu).
+  type_document: TypeDocument | null;
+  type_document_libelle: string | null;
 }
 
 type FiltreStatut = 'PRESENT' | 'PARTI' | 'TOUS';
+
+/** Présentation d'un type de pièce : libellé court, icône, couleurs de pastille. */
+const PRESENTATION_DOCUMENT: Record<TypeDocument, {
+  label: string; icone: string; fond: string; texte: string; bordure: string;
+}> = {
+  PASSEPORT: { label: 'Passeport', icone: '🛂', fond: '#dbeafe', texte: '#1d4ed8', bordure: '#93c5fd' },
+  CNI:       { label: 'CNI',       icone: '🪪', fond: '#f1f5f9', texte: '#475569', bordure: '#cbd5e1' },
+  AUTRE:     { label: 'Autre',     icone: '📄', fond: '#fef3c7', texte: '#a16207', bordure: '#fcd34d' },
+};
+
+/** Libellé texte d'un type de pièce, pour l'export CSV et la vue d'impression. */
+function libelleDocument(v: Visiteur): string {
+  if (!v.type_document) return 'Non renseigné';
+  return v.type_document_libelle || PRESENTATION_DOCUMENT[v.type_document]?.label || v.type_document;
+}
+
+/** Pastille colorée du type de pièce. Un passeport doit se repérer d'un coup d'œil. */
+function BadgeDocument({ type }: { type: TypeDocument | null }) {
+  if (!type) {
+    return (
+      <span
+        title="Visiteur enregistré avant le suivi du type de pièce"
+        style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}
+      >
+        —
+      </span>
+    );
+  }
+  const p = PRESENTATION_DOCUMENT[type] ?? PRESENTATION_DOCUMENT.AUTRE;
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 4,
+      padding: '2px 10px', borderRadius: 20,
+      fontSize: '0.72rem', fontWeight: 700, whiteSpace: 'nowrap',
+      background: p.fond, color: p.texte, border: `1px solid ${p.bordure}`,
+    }}>
+      <span aria-hidden="true">{p.icone}</span>{p.label}
+    </span>
+  );
+}
 
 function formatDate(d: string | null): string {
   if (!d) return '—';
@@ -74,6 +122,7 @@ export default function VisiteursPage() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [sortieEnCours, setSortieEnCours] = useState<number | null>(null);
+  const [seulementPasseports, setSeulementPasseports] = useState(false);
 
   const charger = useCallback(async () => {
     setLoading(true);
@@ -101,19 +150,23 @@ export default function VisiteursPage() {
   }
 
   const filtered = visiteurs.filter(v => {
+    if (seulementPasseports && v.type_document !== 'PASSEPORT') return false;
     const q = search.toLowerCase();
     return (
       v.nom.toLowerCase().includes(q) ||
       v.prenom.toLowerCase().includes(q) ||
       (v.numero_identite ?? '').toLowerCase().includes(q) ||
       (v.entreprise_visitee ?? '').toLowerCase().includes(q) ||
-      (v.nationalite ?? '').toLowerCase().includes(q)
+      (v.nationalite ?? '').toLowerCase().includes(q) ||
+      // Permet de trouver « passeport » ou « CNI » dans la recherche libre.
+      libelleDocument(v).toLowerCase().includes(q)
     );
   });
 
-  const nbPresents = visiteurs.filter(v => v.statut === 'PRESENT').length;
-  const nbPartis   = visiteurs.filter(v => v.statut === 'PARTI').length;
-  const nbTotal    = visiteurs.length;
+  const nbPresents    = visiteurs.filter(v => v.statut === 'PRESENT').length;
+  const nbPartis      = visiteurs.filter(v => v.statut === 'PARTI').length;
+  const nbTotal       = visiteurs.length;
+  const nbPasseports  = visiteurs.filter(v => v.type_document === 'PASSEPORT').length;
 
   const filtreOptions: { label: string; value: FiltreStatut }[] = [
     { label: 'Présents', value: 'PRESENT' },
@@ -125,10 +178,10 @@ export default function VisiteursPage() {
 
   // Exporte la liste filtrée (filtre + recherche) en CSV, téléchargé sur le PC hôte.
   function exporterCsv() {
-    const entetes = ['Nom', 'Prénom', 'Date de naissance', 'N° pièce', 'Nationalité',
+    const entetes = ['Nom', 'Prénom', 'Date de naissance', 'Type de pièce', 'N° pièce', 'Nationalité',
       'Motif / Entreprise', "Heure d'entrée", 'Heure de sortie', 'Statut'];
     const lignes = filtered.map(v => [
-      v.nom, v.prenom, v.date_naissance ?? '', v.numero_identite ?? '', v.nationalite ?? '',
+      v.nom, v.prenom, v.date_naissance ?? '', libelleDocument(v), v.numero_identite ?? '', v.nationalite ?? '',
       v.entreprise_visitee ?? '', formatDate(v.date_entree), formatDate(v.date_sortie),
       v.statut === 'PRESENT' ? 'Présent' : 'Parti',
     ].map(csvCell).join(';'));
@@ -151,6 +204,7 @@ export default function VisiteursPage() {
     const lignes = filtered.map(v => `
       <tr>
         <td>${htmlEsc(v.nom.toUpperCase())} ${htmlEsc(v.prenom)}</td>
+        <td>${htmlEsc(libelleDocument(v))}</td>
         <td>${htmlEsc(v.numero_identite || '—')}<br><small>${htmlEsc(v.nationalite || '')}</small></td>
         <td>${htmlEsc(v.entreprise_visitee || '—')}</td>
         <td>${htmlEsc(formatDate(v.date_entree))}</td>
@@ -174,7 +228,7 @@ export default function VisiteursPage() {
       <h1>Registre des visiteurs — ${htmlEsc(libelleFiltre)}</h1>
       <div class="meta">Édité le ${htmlEsc(new Date().toLocaleString('fr-FR'))} — ${filtered.length} visiteur(s)</div>
       <table><thead><tr>
-        <th>Nom &amp; Prénom</th><th>N° Pièce / Nationalité</th><th>Motif / Entreprise</th>
+        <th>Nom &amp; Prénom</th><th>Pièce</th><th>N° Pièce / Nationalité</th><th>Motif / Entreprise</th>
         <th>Heure d'entrée</th><th>Heure de sortie</th><th>Statut</th>
       </tr></thead><tbody>${lignes}</tbody></table>
       <script>window.onload=function(){window.print();}<\/script>
@@ -244,9 +298,10 @@ export default function VisiteursPage() {
         style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}
         className="animate-fade-in-up"
       >
-        <StatCard value={nbPresents} label="Visiteurs présents" color="#22c55e" icon="🏢" />
-        <StatCard value={nbPartis}   label="Sortis aujourd'hui" color="#6366f1" icon="🚪" />
-        <StatCard value={nbTotal}    label="Total enregistrés" color="#0c44a0" icon="📋" />
+        <StatCard value={nbPresents}   label="Visiteurs présents" color="#22c55e" icon="🏢" />
+        <StatCard value={nbPartis}     label="Sortis aujourd'hui" color="#6366f1" icon="🚪" />
+        <StatCard value={nbPasseports} label="Passeports présentés" color="#1d4ed8" icon="🛂" />
+        <StatCard value={nbTotal}      label="Total enregistrés" color="#0c44a0" icon="📋" />
       </div>
 
       {/* Barre filtres + recherche */}
@@ -282,10 +337,28 @@ export default function VisiteursPage() {
           ))}
         </div>
 
+        {/* Filtre passeports : le boss veut souvent isoler ce cas d'un clic. */}
+        <button
+          id="filtre-passeports"
+          onClick={() => setSeulementPasseports(v => !v)}
+          title="N'afficher que les visiteurs ayant présenté un passeport"
+          style={{
+            padding: '6px 16px', borderRadius: 8, cursor: 'pointer',
+            fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap',
+            display: 'flex', alignItems: 'center', gap: 6,
+            border: `1px solid ${seulementPasseports ? '#1d4ed8' : 'var(--color-border)'}`,
+            background: seulementPasseports ? '#dbeafe' : 'var(--color-surface)',
+            color: seulementPasseports ? '#1d4ed8' : 'var(--color-text-muted)',
+            transition: 'all 0.2s',
+          }}
+        >
+          🛂 Passeports uniquement
+        </button>
+
         {/* Recherche */}
         <input
           className="input"
-          placeholder="Rechercher par nom, N° pièce, motif..."
+          placeholder="Rechercher par nom, N° pièce, motif, type de pièce..."
           value={search}
           onChange={e => setSearch(e.target.value)}
           id="search-visiteurs"
@@ -301,7 +374,7 @@ export default function VisiteursPage() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: 'var(--color-primary)' }}>
-              {['Nom & Prénom', 'N° Pièce / Nationalité', 'Motif / Entreprise', "Heure d'entrée", 'Heure de sortie', 'Statut', 'Action'].map(h => (
+              {['Nom & Prénom', 'Pièce', 'N° Pièce / Nationalité', 'Motif / Entreprise', "Heure d'entrée", 'Heure de sortie', 'Statut', 'Action'].map(h => (
                 <th key={h} style={{
                   padding: '0.875rem 1rem', textAlign: 'left',
                   fontSize: '0.78rem', color: 'rgba(255,255,255,0.85)',
@@ -315,7 +388,7 @@ export default function VisiteursPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
+                <td colSpan={8} style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
                     <div style={{ width: 32, height: 32, border: '3px solid var(--color-primary)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
                     Chargement...
@@ -324,7 +397,7 @@ export default function VisiteursPage() {
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={7} style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
+                <td colSpan={8} style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
                   Aucun visiteur trouvé
                 </td>
               </tr>
@@ -351,6 +424,10 @@ export default function VisiteursPage() {
                         Né(e) le {v.date_naissance}
                       </div>
                     )}
+                  </td>
+                  {/* Type de pièce présentée */}
+                  <td style={{ padding: '0.875rem 1rem' }}>
+                    <BadgeDocument type={v.type_document} />
                   </td>
                   {/* ID */}
                   <td style={{ padding: '0.875rem 1rem' }}>

@@ -9,10 +9,17 @@ interface Config {
   ftp_host: string;
   ftp_port: number;
   ftp_user: string;
-  ftp_password_enc: string;
+  // Mot de passe EN CLAIR. L'API renvoyait auparavant le texte chiffré dans ce
+  // champ, alors que l'enregistrement le traite comme un mot de passe à
+  // chiffrer : enregistrer sans toucher au champ rechiffrait donc le chiffré et
+  // rendait le mot de passe inutilisable, sans le moindre message.
+  ftp_password: string;
   ftp_fingerprint: string;
   ftp_base_path: string;
   storage_mode: string;
+  // Diagnostic renvoyé par l'API (lecture seule).
+  herite_de?: number | null;
+  configuree?: boolean;
 }
 
 export default function ConfigPage() {
@@ -23,6 +30,7 @@ export default function ConfigPage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
+  const [showPass, setShowPass] = useState(false);
 
   useEffect(() => {
     apiGetSuccursales()
@@ -90,6 +98,31 @@ export default function ConfigPage() {
         </div>
       ) : (
         <form onSubmit={handleSave} className={`${styles.form} animate-fade-in-up delay-1`}>
+          {/* D'où vient la configuration affichée. Sans cette indication, une agence
+              qui fonctionne par héritage semble configurée en propre, et une agence
+              sans configuration ne se distingue pas d'une agence configurée. */}
+          {config.configuree === false && (
+            <div className={`${styles.formCard} glass`} style={{ borderLeft: '4px solid #d97706' }}>
+              <strong>Cette succursale n&apos;a pas de configuration serveur.</strong>
+              <p style={{ margin: '0.4rem 0 0', color: 'var(--color-text-secondary)' }}>
+                Aucune autre agence de la société n&apos;en possède non plus. Créez le compte
+                sur le serveur FileZilla, puis saisissez ses identifiants ci-dessous.
+                Tant que ce n&apos;est pas fait, l&apos;application fonctionnera hors-ligne
+                et les documents resteront sur les postes.
+              </p>
+            </div>
+          )}
+          {config.herite_de != null && (
+            <div className={`${styles.formCard} glass`} style={{ borderLeft: '4px solid #2563eb' }}>
+              <strong>Configuration héritée d&apos;une autre agence de la société.</strong>
+              <p style={{ margin: '0.4rem 0 0', color: 'var(--color-text-secondary)' }}>
+                Cette succursale n&apos;a pas de compte FTP propre : elle utilise celui du
+                reste de la société. Enregistrer ci-dessous lui en attribuera un
+                spécifique, qui ne suivra plus les changements des autres agences.
+              </p>
+            </div>
+          )}
+
           <div className={`${styles.formCard} glass`}>
             <h2 className={styles.sectionTitle}>Connexion FTP</h2>
             <div className={styles.row}>
@@ -111,9 +144,18 @@ export default function ConfigPage() {
                   value={config.ftp_user || ''} onChange={e => update('ftp_user', e.target.value)} />
               </div>
               <div className="input-group">
-                <label htmlFor="ftp-pass">Mot de passe (chiffré AES)</label>
-                <input id="ftp-pass" className="input" type="password" placeholder="••••••••"
-                  value={config.ftp_password_enc || ''} onChange={e => update('ftp_password_enc', e.target.value)} />
+                <label htmlFor="ftp-pass">
+                  Mot de passe FTP
+                  <button type="button" onClick={() => setShowPass(v => !v)}
+                    style={{ marginLeft: '0.5rem', background: 'none', border: 'none',
+                             color: 'var(--color-text-secondary)', cursor: 'pointer',
+                             font: 'inherit', textDecoration: 'underline' }}>
+                    {showPass ? 'masquer' : 'afficher'}
+                  </button>
+                </label>
+                <input id="ftp-pass" className="input" type={showPass ? 'text' : 'password'}
+                  placeholder="mot de passe du compte FileZilla" autoComplete="off"
+                  value={config.ftp_password || ''} onChange={e => update('ftp_password', e.target.value)} />
               </div>
             </div>
           </div>

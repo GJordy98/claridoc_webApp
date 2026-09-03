@@ -139,3 +139,70 @@ export const apiGetVisiteurs = (statut?: 'PRESENT' | 'PARTI') =>
 /** Enregistre la sortie d'un visiteur */
 export const apiVisiteurSortie = (id: number) =>
   apiFetch(`/visiteurs/${id}/sortie/`, { method: 'POST' });
+
+// ─── FICHES HÔTEL ──────────────────────────────────────────────────────────────
+export const apiGetFichesHotel = (params?: {
+  statut?: 'EN_COURS' | 'TERMINE';
+  annee?: number;
+  chambre?: string;
+}) => {
+  const qs = new URLSearchParams();
+  if (params?.statut)  qs.set('statut', params.statut);
+  if (params?.annee)   qs.set('annee', String(params.annee));
+  if (params?.chambre) qs.set('chambre', params.chambre);
+  const query = qs.toString() ? `?${qs.toString()}` : '';
+  return apiFetch(`/fiches-hotel/${query}`);
+};
+
+export const apiCreerFicheHotel = (data: object) =>
+  apiFetch('/fiches-hotel/', { method: 'POST', body: JSON.stringify(data) });
+
+export const apiMajFicheHotel = (id: number, data: object) =>
+  apiFetch(`/fiches-hotel/${id}/`, { method: 'PATCH', body: JSON.stringify(data) });
+
+export const apiFicheHotelDepart = (id: number) =>
+  apiFetch(`/fiches-hotel/${id}/depart/`, { method: 'POST' });
+
+export const apiSupprimerFicheHotel = (id: number) =>
+  apiFetch(`/fiches-hotel/${id}/`, { method: 'DELETE' });
+
+// ─── CONFIGURATION FICHE HÔTEL ──────────────────────────────────────────────────
+export const apiGetConfigFicheHotel = () => apiFetch('/config-fiche-hotel/');
+
+export const apiUpdateConfigFicheHotel = (data: {
+  entete?: string;
+  pied_de_page?: string;
+  couleur_principale?: string;
+  champs?: Array<{
+    field: string;
+    visible: boolean;
+    obligatoire: boolean;
+    ordre: number;
+    libelle?: string | null;
+  }>;
+}) => apiFetch('/config-fiche-hotel/', { method: 'PATCH', body: JSON.stringify(data) });
+
+export const apiUploadLogoFicheHotel = (file: File) => {
+  const formData = new FormData();
+  formData.append('logo', file);
+
+  const token = typeof document !== 'undefined'
+    ? (document.cookie.match(/claridoc_token=([^;]+)/)?.[1] ?? null)
+    : null;
+
+  return fetch(`${API_BASE}/config-fiche-hotel/`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  }).then(async res => {
+    if (!res.ok) {
+      const errObj = await res.json().catch(() => ({ message: 'Erreur inconnue' }));
+      throw new Error(errObj.error || errObj.message || `Erreur ${res.status}`);
+    }
+    return res.json();
+  });
+};
+
+export const apiDeleteLogoFicheHotel = () =>
+  apiFetch('/config-fiche-hotel/', { method: 'DELETE' });
+

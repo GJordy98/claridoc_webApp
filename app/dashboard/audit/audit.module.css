@@ -1,0 +1,41 @@
+/* ── Journal d'Audit ── */
+.page { display: flex; flex-direction: column; gap: var(--space-8); width: 100%; }
+
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-8); }
+.headerBadges { display: flex; gap: var(--space-3); flex-wrap: wrap; justify-content: flex-end; }
+
+.filters { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-6); }
+@media (max-width: 680px) { .filters { grid-template-columns: 1fr; } }
+
+.tableWrap { border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md); }
+.table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+.table thead tr { background: var(--color-bg-elevated); border-bottom: 2px solid var(--color-border); }
+.table th { text-align: left; padding: var(--space-3) var(--space-4); font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); letter-spacing: 0.06em; text-transform: uppercase; }
+.table td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border); color: var(--color-text-primary); vertical-align: middle; }
+.table tbody tr:last-child td { border-bottom: none; }
+.table tbody tr { transition: background var(--transition-fast); }
+.table tbody tr:hover { background: var(--color-bg-elevated); }
+
+.tdDate { color: var(--color-text-muted); font-size: 0.8rem; white-space: nowrap; }
+.tdUser { font-weight: 500; font-size: 0.9rem; }
+.tdMuted { color: var(--color-text-muted); font-size: 0.8rem; }
+.tdDetails { color: var(--color-text-secondary); font-size: var(--text-xs); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.fileCell { display: flex; align-items: center; gap: var(--space-2); }
+.fileIcon { font-size: 1rem; }
+.fileCode {
+  background: var(--color-bg-elevated);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  color: var(--color-primary);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  font-family: monospace;
+  letter-spacing: 0.02em;
+}
+
+.emptyRow td { text-align: center; padding: var(--space-12); color: var(--color-text-muted); }

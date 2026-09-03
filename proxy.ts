@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { accueilPourRole } from '@/lib/roles';
 
 export function proxy(request: NextRequest) {
   const token = request.cookies.get('claridoc_token')?.value;
@@ -20,12 +21,17 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  // 3. Redirection si déjà connecté (Login/Register)
+  // 3. Redirection si déjà connecté (Login/Register).
+  //
+  // On ne renvoie QUE vers une page que le rôle a le droit d'atteindre. La version
+  // précédente envoyait vers /dashboard tout porteur de jeton non-SUPERADMIN : un
+  // compte USER y était refusé par la règle 2, renvoyé ici, réexpédié vers
+  // /dashboard… boucle infinie. Un rôle sans page d'accueil reste donc sur /login,
+  // où la page lui explique qu'il n'a pas accès au portail.
   if (token && (pathname === '/login' || pathname === '/register')) {
-    if (role === 'SUPERADMIN') {
-      return NextResponse.redirect(new URL('/admin', request.url));
-    } else {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+    const accueil = accueilPourRole(role);
+    if (accueil) {
+      return NextResponse.redirect(new URL(accueil, request.url));
     }
   }
 
@@ -35,4 +41,3 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: ['/admin/:path*', '/dashboard/:path*', '/login', '/register'],
 };
-

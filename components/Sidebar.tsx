@@ -39,6 +39,12 @@ const iconMachines = (
     <circle cx="9" cy="8.5" r="2" stroke="currentColor" strokeWidth="1.3"/>
   </svg>
 );
+const iconDownload = (
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <path d="M9 2v10M5 8l4 5 4-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M2 14h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+  </svg>
+);
 const iconLicence = (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
     <path d="M9 1L11 5h4l-3 3 1 4-3-2-3 2 1-4-3-3h4L9 1Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
@@ -80,6 +86,17 @@ const iconVisiteurs = (
   </svg>
 );
 
+
+const iconHotel = (
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <rect x="2" y="5" width="14" height="11" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+    <path d="M6 16v-4h6v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M5 5V3.5A1.5 1.5 0 0 1 6.5 2h5A1.5 1.5 0 0 1 13 3.5V5" stroke="currentColor" strokeWidth="1.5"/>
+    <rect x="5" y="8" width="2" height="2" rx="0.5" fill="currentColor"/>
+    <rect x="11" y="8" width="2" height="2" rx="0.5" fill="currentColor"/>
+  </svg>
+);
+
 function NavLink({ item }: { item: NavItem }) {
   const pathname = usePathname();
   const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
@@ -99,12 +116,14 @@ export default function Sidebar({ role, userName, clientNom }: SidebarProps) {
     { href: '/dashboard', label: 'Tableau de bord', icon: iconDashboard },
     { href: '/dashboard/users', label: 'Utilisateurs', icon: iconUsers },
     { href: '/dashboard/visiteurs', label: 'Registre Visiteurs', icon: iconVisiteurs },
+    { href: '/dashboard/fiches-hotel', label: 'Registre Hôtel', icon: iconHotel },
     { href: '/dashboard/machines', label: 'Postes (HWID)', icon: iconMachines },
     { href: '/dashboard/licence', label: 'Licences', icon: iconLicence },
     { href: '/dashboard/scans', label: 'Historique Scans', icon: iconAudit },
     { href: '/dashboard/audit', label: 'Journal d\'Audit', icon: iconMachines },
     { href: '/dashboard/config', label: 'Configuration FTP', icon: iconConfig },
   ];
+
 
   const adminNav: NavItem[] = [
     { href: '/admin', label: 'Vue globale', icon: iconDashboard },
@@ -156,6 +175,21 @@ export default function Sidebar({ role, userName, clientNom }: SidebarProps) {
         <div className={styles.navSection}>
           {navItems.map(item => <NavLink key={item.href} item={item} />)}
         </div>
+
+        {/* Bouton téléchargement — uniquement pour le BOSS */}
+        {role === 'BOSS' && (
+          <div className={styles.downloadSection}>
+            <a
+              href="/Install_ClariDocPro_v1.0.exe"
+              download
+              className={styles.sidebarDownloadBtn}
+              id="sidebar-download-app"
+            >
+              {iconDownload}
+              <span>Télécharger l&apos;appli</span>
+            </a>
+          </div>
+        )}
       </nav>
 
       {/* Bas de la sidebar */}

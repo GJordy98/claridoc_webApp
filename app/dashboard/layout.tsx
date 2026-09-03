@@ -7,7 +7,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const cookieStore = await cookies();
   const role = cookieStore.get('claridoc_role')?.value;
 
-  if (!role || !['BOSS', 'ADMIN'].includes(role)) {
+  if (!role || !['BOSS', 'SUPERADMIN'].includes(role)) {
     redirect('/login');
   }
 

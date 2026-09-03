@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { apiLogin } from '@/lib/api';
+import { accueilPourRole } from '@/lib/roles';
 import styles from './login.module.css';
 
 export default function LoginPage() {
@@ -19,23 +20,38 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
 
+    // Destination calculée dans le try, navigation exécutée APRÈS. La navigation était
+    // à l'intérieur du try : le moindre échec de route remontait dans le catch et
+    // s'affichait « Identifiants incorrects. » alors que l'authentification avait
+    // parfaitement réussi. C'est ce qui masquait la boucle de redirection.
+    let destination: string | null = null;
+
     try {
       const data = await apiLogin(email, password);
+      const role: string | undefined = data?.user?.role;
+
+      destination = accueilPourRole(role);
+      if (!destination) {
+        // Cas d'un compte USER : identifiants valides, mais le portail web n'est pas
+        // pour lui. Le dire, au lieu de le promener entre deux pages.
+        setError(
+          `Connexion réussie, mais ce compte (rôle « ${role ?? 'inconnu'} ») n'a pas accès au portail web. ` +
+          `Il est destiné à l'application de numérisation ClariDoc.`
+        );
+        return;
+      }
 
       const maxAge = 60 * 60 * 24;
       document.cookie = `claridoc_token=${data.access}; path=/; max-age=${maxAge}`;
-      document.cookie = `claridoc_role=${data.user.role}; path=/; max-age=${maxAge}`;
-
-      if (data.user.role === 'SUPERADMIN') {
-        router.push('/admin');
-      } else {
-        router.push('/dashboard');
-      }
+      document.cookie = `claridoc_role=${role}; path=/; max-age=${maxAge}`;
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Identifiants incorrects.');
+      return;
     } finally {
       setLoading(false);
     }
+
+    router.push(destination);
   }
 
   return (

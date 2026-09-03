@@ -13,8 +13,18 @@ interface User {
   role: string;
   is_active: boolean;
   succursale_nom?: string;
-  succursale_id?: number;
+  // L'API renvoie l'id de la succursale sous la cle `succursale` (PrimaryKeyRelatedField
+  // de UserSerializer), PAS `succursale_id`. Le formulaire lisait `succursale_id`, donc
+  // toujours undefined : le selecteur s'ouvrait vide et l'enregistrement renvoyait
+  // succursale: null — modifier un compte le detachait silencieusement de son agence.
+  succursale?: number | null;
 }
+
+// Tables constantes, hors du composant : elles ne dépendent d'aucun état, et le
+// message de confirmation de handleSubmit les lit — les laisser plus bas dans le
+// corps du composant les rendait dépendantes de l'ordre d'évaluation du rendu.
+const roleLabel: Record<string, string> = { BOSS: 'Chef', ADMIN: 'Admin', USER: 'Utilisateur', GARDIEN: 'Gardien' };
+const roleBadge: Record<string, string> = { BOSS: 'badge-info', ADMIN: 'badge-warning', USER: 'badge-success', GARDIEN: 'badge-info' };
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -25,8 +35,16 @@ export default function UsersPage() {
   const [form, setForm] = useState({ username: '', email: '', password: '', role: 'USER', succursale_id: '' });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
+  // Rôle du compte connecté (cookie posé à la connexion). Il commande ce que le
+  // formulaire propose de CRÉER : un ADMIN de succursale peuple son agence en
+  // USER et GARDIEN, il ne fabrique pas d'autres ADMIN. Le backend applique la
+  // même table (User.ROLES_CREABLES) ; on l'affiche ici pour ne pas proposer une
+  // option que l'API refusera.
+  const [roleConnecte, setRoleConnecte] = useState('');
 
   useEffect(() => {
+    const cookie = document.cookie.split('; ').find(c => c.startsWith('claridoc_role='));
+    setRoleConnecte(cookie ? decodeURIComponent(cookie.split('=')[1]) : '');
     loadData();
   }, []);
 
@@ -46,7 +64,7 @@ export default function UsersPage() {
       email: u.email,
       password: '', // On laisse vide pour ne changer que si saisi
       role: u.role,
-      succursale_id: u.succursale_id?.toString() || ''
+      succursale_id: u.succursale != null ? u.succursale.toString() : ''
     });
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -88,6 +106,11 @@ export default function UsersPage() {
           throw new Error(`Email : ${errData.email[0]}`);
         } else if (errData.password) {
           throw new Error(`Mot de passe : ${errData.password[0]}`);
+        } else if (errData.role) {
+          // Un refus portant sur le role tombait dans le message generique
+          // « Erreur lors de l'operation. » : le compte n'etait pas cree — ou l'etait
+          // avec le role par defaut — sans que rien ne le signale a l'ecran.
+          throw new Error(`Role : ${Array.isArray(errData.role) ? errData.role[0] : errData.role}`);
         } else if (errData.message) {
           throw new Error(errData.message);
         } else if (errData.detail) {
@@ -97,7 +120,19 @@ export default function UsersPage() {
         }
       }
       
-      setMsg(editingId ? 'Utilisateur mis à jour !' : 'Utilisateur créé !');
+      // On annonce le rôle RENVOYÉ PAR LE SERVEUR, jamais celui du formulaire :
+      // c'est la seule valeur qui dise ce qui a réellement été enregistré. Un onglet
+      // resté ouvert sur une version périmée de cette page a déjà envoyé USER là où
+      // GARDIEN était attendu (compte « jean », 20/08/2026) : le message disait
+      // « Utilisateur créé ! » et l'écart n'a été vu que quatre jours plus tard.
+      const enregistre = await res.json().catch(() => null);
+      const roleEnregistre = enregistre?.role
+        ? (roleLabel[enregistre.role] ?? enregistre.role)
+        : null;
+      setMsg(
+        (editingId ? 'Utilisateur mis à jour' : 'Utilisateur créé')
+        + (roleEnregistre ? ` avec le rôle « ${roleEnregistre} ».` : ' !')
+      );
       setShowForm(false);
       setEditingId(null);
       setForm({ username: '', email: '', password: '', role: 'USER', succursale_id: '' });
@@ -126,9 +161,6 @@ export default function UsersPage() {
     } catch { /* silent */ }
     finally { setLoadingActivity(false); }
   }
-
-  const roleLabel: Record<string, string> = { BOSS: 'Chef', ADMIN: 'Admin', USER: 'Utilisateur' };
-  const roleBadge: Record<string, string> = { BOSS: 'badge-info', ADMIN: 'badge-warning', USER: 'badge-success' };
 
   return (
     <div className={styles.page}>
@@ -177,7 +209,10 @@ export default function UsersPage() {
                 <select id="new-role" className="input" value={form.role}
                   onChange={e => setForm(f => ({...f, role: e.target.value}))}>
                   <option value="USER">Utilisateur (Scanner)</option>
-                  <option value="ADMIN">Administrateur Succursale</option>
+                  <option value="GARDIEN">Gardien (Registre visiteurs)</option>
+                  {(roleConnecte === 'BOSS' || roleConnecte === 'SUPERADMIN' || form.role === 'ADMIN') && (
+                    <option value="ADMIN">Administrateur Succursale</option>
+                  )}
                   {editingId && form.role === 'BOSS' && <option value="BOSS">Chef d'entreprise</option>}
                 </select>
               </div>

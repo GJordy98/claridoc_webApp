@@ -66,6 +66,7 @@ const ROLE_STYLE: Record<string, { bg: string; color: string }> = {
   BOSS:       { bg: '#e0e7ff', color: '#3730a3' },
   ADMIN:      { bg: '#fef3c7', color: '#92400e' },
   USER:       { bg: '#d1fae5', color: '#065f46' },
+  GARDIEN:    { bg: '#dbeafe', color: '#1e40af' },
   SUPERADMIN: { bg: '#fce7f3', color: '#9d174d' },
 };
 

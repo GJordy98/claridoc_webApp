@@ -1,0 +1,22 @@
+/* ── Historique des Scans ── */
+.page { display: flex; flex-direction: column; gap: var(--space-8); width: 100%; }
+
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-8); }
+
+.searchWrap { max-width: 420px; margin-bottom: var(--space-6); }
+
+.tableWrap { border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md); }
+.table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+.table thead tr { background: var(--color-bg-elevated); border-bottom: 2px solid var(--color-border); }
+.table th { text-align: left; padding: var(--space-3) var(--space-4); font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); letter-spacing: 0.06em; text-transform: uppercase; }
+.table td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border); color: var(--color-text-primary); vertical-align: middle; }
+.table tbody tr:last-child td { border-bottom: none; }
+.table tbody tr { transition: background var(--transition-fast); }
+.table tbody tr:hover { background: var(--color-bg-elevated); }
+
+.tdDate { color: var(--color-text-muted); font-size: 0.8rem; white-space: nowrap; }
+.tdUser { font-weight: 500; }
+.tdFile { font-size: var(--text-xs); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tdSize { color: var(--color-text-muted); font-size: var(--text-xs); }
+
+.emptyRow td { text-align: center; padding: var(--space-12); color: var(--color-text-muted); }
